@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import {AppRegistry,
-        Text, 
-        View, 
+        Text,
+        View,
         StyleSheet,
         ListView,
         TouchableHighlight,
         Modal,
-        TextInput 
+        TextInput
 } from 'react-native';
-const styles = require('./app/style');    
+const styles = require('./app/style');
 import Toolbar from './app/components/Toolbar/Toolbar';
 import * as firebase from 'firebase';
 import AddButton from './app/components/AddButton/AddButton';
@@ -34,31 +34,31 @@ export default class ItemLister extends Component {
   	this.state = {
   		text: '',
   		itemDataSource: ds,
-  		modalVisibble: false
+  		modalVisible: false,
   	}
-  	
+
   	this.itemsRef = this.getRef().child('items');
-  	
+
   	this.renderRow = this.renderRow.bind(this);
   	this.pressRow = this.pressRow.bind(this);
   }
-  
+
   setModalVisible(visible){
   	this.setState({modalVisible:visible});
   }
-  
+
   getRef(){
   	return firebaseApp.database().ref();
   }
-  
+
   componentWillMount(){
   	this.getItems(this.itemsRef);
   }
-  
+
   componentDidMount(){
   	this.getItems(this.itemsRef);
   }
-  
+
   getItems(itemsRef){
   	//let items = [{title:'Item One'},{title:'Item Two'}];
   	itemsRef.on('value',(snap) => {
@@ -69,18 +69,18 @@ export default class ItemLister extends Component {
   			  _key: child.key
   			});
   		});
-  		
+
   		this.setState({
   		itemDataSource: this.state.itemDataSource.cloneWithRows(items)
   		});
-  		
+
   	});
   }
-  
+
   pressRow(item){
   	 this.itemsRef.child(item._key).remove();
   }
-  
+
   renderRow(item){
   	return (
   	  <TouchableHighlight onPress={() => {
@@ -89,54 +89,54 @@ export default class ItemLister extends Component {
 	  	  <View style={styles.li}>
 	  	    <Text style={styles.liText}>{item.title}</Text>
 	  	  </View>
-  	  
+
   	  </TouchableHighlight>
   	);
   }
-  
+
   addItem(){
   	this.setModalVisible(true);
   }
-  
+
   render() {
     return (
       <View style={styles.container}>
-      <Modal 
+      <Modal
       	animationType="slide"
-      	transparent={false} 
-      	visible={this.state.modalVisible} 
-      	onRequestClose={() => {}} 
-      	> 
-       <View style={{marginTop: 22}}> 
-        <View> 
+      	transparent={false}
+      	visible={this.state.modalVisible}
+      	onRequestClose={() => {}}
+      	>
+       <View style={{marginTop: 22}}>
+        <View>
           <Toolbar title="Add Item" />
           <TextInput
           	placeHolder="Add Item"
           	onChangeText = {(value) => this.setState({text:value})}
           />
-          <TouchableHighlight onPress={() => { 
+          <TouchableHighlight onPress={() => {
           	this.itemsRef.push({title: this.state.text});
-          	this.setModalVisible(!this.state.modalVisible) 
-          }}> 
+          	this.setModalVisible(!this.state.modalVisible);
+          }}>
             <Text>Save Item</Text>
-          </TouchableHighlight> 
-          
-          <TouchableHighlight onPress={() => { 
-          	this.setModalVisible(!this.state.modalVisible) 
+          </TouchableHighlight>
+
+          <TouchableHighlight onPress={() => {
+          	this.setModalVisible(!this.state.modalVisible)
           }}>
             <Text>Cancel</Text>
-          </TouchableHighlight> 
-          
+          </TouchableHighlight>
+
          </View>
-        </View> 
+        </View>
        </Modal>
-       
+
         <Toolbar title="ItemLister" />
         <ListView
           dataSource={this.state.itemDataSource}
           renderRow={this.renderRow}
         />
-        
+
         <AddButton onPress={this.addItem.bind(this)} title="Add Item" />
       </View>
     );
